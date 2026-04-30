@@ -97,19 +97,19 @@ const Index = () => {
       <section className="container max-w-2xl px-4 pb-16">
         {!preview && !result && (
           <div className="animate-fade-up">
-            <h1 className="font-display text-5xl sm:text-6xl font-semibold leading-[1.05] tracking-tight text-balance mt-6">
+            <h1 className="font-display text-5xl sm:text-6xl font-semibold leading-[1.05] tracking-tight text-balance mt-4">
               Snap your meal.
               <br />
-              <span className="bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[hsl(142_45%_38%)] via-[hsl(142_50%_45%)] to-[hsl(28_75%_58%)] bg-clip-text text-transparent">
                 Know your macros.
               </span>
             </h1>
-            <p className="mt-5 text-lg text-muted-foreground leading-relaxed text-balance">
+            <p className="mt-3 text-base sm:text-lg text-muted-foreground leading-relaxed text-balance max-w-md">
               Take a photo of any dish and get an instant breakdown of every ingredient — calories, protein, carbs, and fat.
             </p>
 
-            <div className="mt-10 relative">
-              <div className="absolute -inset-4 gradient-hero opacity-20 blur-3xl rounded-full" aria-hidden />
+            <div className="mt-7 relative">
+              <div className="absolute -inset-4 gradient-hero opacity-15 blur-3xl rounded-full" aria-hidden />
               <img
                 src={heroBowl}
                 alt="A vibrant healthy bowl with grilled salmon, quinoa, avocado and greens"
@@ -119,27 +119,27 @@ const Index = () => {
               />
             </div>
 
-            <div className="mt-8 grid grid-cols-2 gap-3">
+            <div className="mt-7 grid grid-cols-[1.4fr_1fr] gap-2.5">
               <Button
                 size="lg"
                 onClick={() => cameraInputRef.current?.click()}
-                className="h-16 rounded-2xl gradient-hero text-primary-foreground shadow-glow hover:opacity-95 transition-all hover:scale-[1.02]"
+                className="h-14 rounded-2xl gradient-hero text-primary-foreground shadow-glow font-medium tracking-tight hover:opacity-95 transition-all hover:scale-[1.02]"
               >
                 <Camera className="w-5 h-5 mr-2" />
                 Take photo
               </Button>
               <Button
                 size="lg"
-                variant="secondary"
+                variant="outline"
                 onClick={() => fileInputRef.current?.click()}
-                className="h-16 rounded-2xl shadow-soft hover:scale-[1.02] transition-all"
+                className="h-14 rounded-2xl bg-card border-border/80 text-foreground font-medium tracking-tight shadow-soft hover:bg-secondary hover:scale-[1.02] transition-all"
               >
-                <Upload className="w-5 h-5 mr-2" />
+                <Upload className="w-4 h-4 mr-2" />
                 Upload
               </Button>
             </div>
 
-            <p className="mt-6 text-center text-xs text-muted-foreground">
+            <p className="mt-4 text-center text-xs text-muted-foreground">
               Works best with a clear, well-lit photo of a single plate.
             </p>
           </div>
