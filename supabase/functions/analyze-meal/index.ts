@@ -5,7 +5,7 @@ const corsHeaders = {
 };
 
 const WEBHOOK_URL =
-  "https://aurmaliya.app.n8n.cloud/webhook-test/924f15cc-176e-4ec9-aca0-57fd333fc050";
+  "https://aurmaliya.app.n8n.cloud/webhook/924f15cc-176e-4ec9-aca0-57fd333fc050";
 
 // Convert base64 data URL -> Blob (Deno-compatible)
 function dataUrlToBlob(dataUrl: string): { blob: Blob; filename: string } {
