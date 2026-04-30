@@ -5,14 +5,26 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import heroBowl from "@/assets/hero-bowl.jpg";
 
-type MacroResult = {
-  dish: string;
+type FoodItem = {
+  name: string;
+  quantity: string;
   calories: number;
-  protein_g: number;
-  carbs_g: number;
-  fat_g: number;
-  confidence: "low" | "medium" | "high";
-  notes?: string;
+  protein: number;
+  carbs: number;
+  fat: number;
+};
+
+type Totals = {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+};
+
+type AnalysisResult = {
+  status?: string;
+  food: FoodItem[];
+  total: Totals;
 };
 
 const fileToDataUrl = (file: File) =>
@@ -28,7 +40,7 @@ const Index = () => {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<MacroResult | null>(null);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -53,7 +65,10 @@ const Index = () => {
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      setResult(data as MacroResult);
+      if (!data?.food || !Array.isArray(data.food)) {
+        throw new Error("Unexpected response from analyzer.");
+      }
+      setResult(data as AnalysisResult);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to analyze.";
       toast.error(msg);
@@ -69,7 +84,6 @@ const Index = () => {
 
   return (
     <main className="min-h-screen">
-      {/* Header */}
       <header className="container max-w-2xl pt-8 pb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-9 h-9 rounded-2xl gradient-hero flex items-center justify-center shadow-glow">
@@ -91,7 +105,7 @@ const Index = () => {
               </span>
             </h1>
             <p className="mt-5 text-lg text-muted-foreground leading-relaxed text-balance">
-              Take a photo of any dish and get instant protein, carbs, and fat estimates — powered by AI.
+              Take a photo of any dish and get an instant breakdown of every ingredient — calories, protein, carbs, and fat.
             </p>
 
             <div className="mt-10 relative">
@@ -145,36 +159,66 @@ const Index = () => {
 
             {result && (
               <div className="mt-6 space-y-4 animate-fade-up">
+                {/* Totals card */}
                 <div className="bg-card rounded-3xl p-6 shadow-card">
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                        Detected dish
+                        Total for this plate
                       </p>
-                      <h2 className="font-display text-2xl font-semibold mt-1">{result.dish}</h2>
-                    </div>
-                    <div className="flex items-center gap-1.5 bg-secondary px-3 py-1.5 rounded-full text-xs font-medium">
-                      <Flame className="w-3.5 h-3.5 text-accent" />
-                      {Math.round(result.calories)} kcal
+                      <h2 className="font-display text-3xl font-semibold mt-1 flex items-center gap-2">
+                        <Flame className="w-6 h-6 text-accent" />
+                        {Math.round(result.total.calories)}
+                        <span className="text-base font-sans font-medium text-muted-foreground">
+                          kcal
+                        </span>
+                      </h2>
                     </div>
                   </div>
 
                   <div className="mt-6 grid grid-cols-3 gap-3">
-                    <MacroCard label="Protein" value={result.protein_g} color="protein" />
-                    <MacroCard label="Carbs" value={result.carbs_g} color="carbs" />
-                    <MacroCard label="Fat" value={result.fat_g} color="fat" />
+                    <MacroCard label="Protein" value={result.total.protein} color="protein" />
+                    <MacroCard label="Carbs" value={result.total.carbs} color="carbs" />
+                    <MacroCard label="Fat" value={result.total.fat} color="fat" />
                   </div>
-
-                  {result.notes && (
-                    <p className="mt-5 text-sm text-muted-foreground leading-relaxed border-t border-border pt-4">
-                      {result.notes}
-                    </p>
-                  )}
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    Confidence:{" "}
-                    <span className="font-medium capitalize text-foreground">{result.confidence}</span> · Estimates only
-                  </p>
                 </div>
+
+                {/* Per-item breakdown */}
+                <div className="bg-card rounded-3xl shadow-card overflow-hidden">
+                  <div className="px-6 pt-5 pb-3">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                      Detected ingredients
+                    </p>
+                    <h3 className="font-display text-xl font-semibold mt-1">
+                      {result.food.length} {result.food.length === 1 ? "item" : "items"}
+                    </h3>
+                  </div>
+                  <ul className="divide-y divide-border">
+                    {result.food.map((item, i) => (
+                      <li key={i} className="px-6 py-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="font-medium leading-tight truncate">{item.name}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{item.quantity}</p>
+                          </div>
+                          <div className="flex items-center gap-1 text-sm font-medium shrink-0">
+                            <Flame className="w-3.5 h-3.5 text-accent" />
+                            {Math.round(item.calories)}
+                          </div>
+                        </div>
+                        <div className="mt-3 flex gap-2 text-[11px] font-medium">
+                          <Pill label="P" value={item.protein} color="protein" />
+                          <Pill label="C" value={item.carbs} color="carbs" />
+                          <Pill label="F" value={item.fat} color="fat" />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <p className="text-xs text-muted-foreground text-center">
+                  Estimates only — values may vary based on preparation.
+                </p>
 
                 <Button
                   onClick={reset}
@@ -234,10 +278,32 @@ const MacroCard = ({
     <div className={`rounded-2xl p-4 ${colorMap[color]}`}>
       <p className="text-xs uppercase tracking-wider font-semibold opacity-80">{label}</p>
       <p className="mt-1 font-display text-2xl font-semibold text-foreground">
-        {Math.round(value)}
+        {Math.round(value * 10) / 10}
         <span className="text-sm font-sans font-medium text-muted-foreground ml-1">g</span>
       </p>
     </div>
+  );
+};
+
+const Pill = ({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: "protein" | "carbs" | "fat";
+}) => {
+  const colorMap = {
+    protein: "bg-protein/15 text-protein",
+    carbs: "bg-carbs/15 text-carbs",
+    fat: "bg-fat/15 text-fat",
+  } as const;
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 ${colorMap[color]}`}>
+      <span className="opacity-70">{label}</span>
+      <span className="font-semibold">{Math.round(value * 10) / 10}g</span>
+    </span>
   );
 };
 
