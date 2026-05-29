@@ -118,7 +118,12 @@ const Today = () => {
   return (
     <main className="min-h-screen">
       <header className="container max-w-2xl pt-8 pb-4 flex items-center justify-between">
-        <Link to="/" className="font-display text-xl font-semibold">Today</Link>
+        <Link to="/" className="flex items-center gap-2">
+          <div className="w-9 h-9 rounded-2xl gradient-hero flex items-center justify-center shadow-glow">
+            <Sparkles className="w-5 h-5 text-primary-foreground" />
+          </div>
+          <span className="font-display text-xl font-semibold">WhatsInMyPlate</span>
+        </Link>
         <div className="flex items-center gap-2">
           <Button size="sm" variant="ghost" onClick={() => setEditingGoal((v) => !v)}>
             <Settings2 className="w-4 h-4 mr-1" /> Goals
