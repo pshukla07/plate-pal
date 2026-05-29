@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Camera, Upload, Sparkles, Loader2, RotateCcw, Flame, Check, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,18 +37,30 @@ const fileToDataUrl = (file: File) =>
   });
 
 const Index = () => {
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userLabel, setUserLabel] = useState<string | null>(null);
   const [logging, setLogging] = useState(false);
   const [logged, setLogged] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user.id ?? null));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setUserId(s?.user.id ?? null));
+    const apply = (session: { user: { id: string; email?: string | null; user_metadata?: Record<string, unknown> } } | null) => {
+      setUserId(session?.user.id ?? null);
+      if (session?.user) {
+        const meta = session.user.user_metadata ?? {};
+        const name = (meta.full_name as string) || (meta.name as string) || session.user.email || null;
+        setUserLabel(name);
+      } else {
+        setUserLabel(null);
+      }
+    };
+    supabase.auth.getSession().then(({ data }) => apply(data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => apply(s));
     return () => sub.subscription.unsubscribe();
   }, []);
 
@@ -71,6 +83,7 @@ const Index = () => {
     if (error) return toast.error(error.message);
     setLogged(true);
     toast.success("Logged to today");
+    navigate("/today");
   };
 
   const handleFile = async (file: File) => {
@@ -124,7 +137,12 @@ const Index = () => {
           <span className="font-display text-xl font-semibold">WhatsInMyPlate</span>
         </Link>
         {userId ? (
-          <Link to="/today">
+          <Link to="/today" className="flex items-center gap-2">
+            {userLabel && (
+              <span className="hidden sm:inline text-xs text-muted-foreground max-w-[160px] truncate">
+                {userLabel}
+              </span>
+            )}
             <Button size="sm" variant="ghost" className="rounded-xl">
               <CalendarDays className="w-4 h-4 mr-1" /> Today
             </Button>

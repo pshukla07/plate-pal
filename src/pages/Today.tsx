@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Camera, Flame, LogOut, Settings2, Trash2, AlertTriangle, Sparkles } from "lucide-react";
+import { Camera, Flame, Settings2, Trash2, AlertTriangle, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 type Goal = { calories: number; protein: number; carbs: number; fat: number };
@@ -110,10 +110,6 @@ const Today = () => {
     setLogs((prev) => prev.filter((l) => l.id !== id));
   };
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/auth", { replace: true });
-  };
 
   return (
     <main className="min-h-screen">
@@ -127,9 +123,6 @@ const Today = () => {
         <div className="flex items-center gap-2">
           <Button size="sm" variant="ghost" onClick={() => setEditingGoal((v) => !v)}>
             <Settings2 className="w-4 h-4 mr-1" /> Goals
-          </Button>
-          <Button size="sm" variant="ghost" onClick={signOut}>
-            <LogOut className="w-4 h-4" />
           </Button>
         </div>
       </header>
