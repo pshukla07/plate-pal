@@ -37,18 +37,30 @@ const fileToDataUrl = (file: File) =>
   });
 
 const Index = () => {
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userLabel, setUserLabel] = useState<string | null>(null);
   const [logging, setLogging] = useState(false);
   const [logged, setLogged] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user.id ?? null));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setUserId(s?.user.id ?? null));
+    const apply = (session: { user: { id: string; email?: string | null; user_metadata?: Record<string, unknown> } } | null) => {
+      setUserId(session?.user.id ?? null);
+      if (session?.user) {
+        const meta = session.user.user_metadata ?? {};
+        const name = (meta.full_name as string) || (meta.name as string) || session.user.email || null;
+        setUserLabel(name);
+      } else {
+        setUserLabel(null);
+      }
+    };
+    supabase.auth.getSession().then(({ data }) => apply(data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => apply(s));
     return () => sub.subscription.unsubscribe();
   }, []);
 
@@ -71,6 +83,7 @@ const Index = () => {
     if (error) return toast.error(error.message);
     setLogged(true);
     toast.success("Logged to today");
+    navigate("/today");
   };
 
   const handleFile = async (file: File) => {
