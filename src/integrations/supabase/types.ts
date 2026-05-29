@@ -53,6 +53,7 @@ export type Database = {
           id: string
           items: Json
           logged_date: string
+          meal_type: string
           protein: number
           user_id: string
         }
@@ -64,6 +65,7 @@ export type Database = {
           id?: string
           items?: Json
           logged_date?: string
+          meal_type?: string
           protein?: number
           user_id: string
         }
@@ -75,6 +77,7 @@ export type Database = {
           id?: string
           items?: Json
           logged_date?: string
+          meal_type?: string
           protein?: number
           user_id?: string
         }
