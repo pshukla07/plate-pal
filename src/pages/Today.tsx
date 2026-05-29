@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Camera, Flame, LogOut, Settings2, Trash2, AlertTriangle, Sparkles } from "lucide-react";
+import { Camera, Flame, Settings2, Trash2, AlertTriangle, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 type Goal = { calories: number; protein: number; carbs: number; fat: number };
