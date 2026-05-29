@@ -1,0 +1,1 @@
+ALTER TABLE public.meal_logs ADD COLUMN IF NOT EXISTS meal_type text NOT NULL DEFAULT 'other';

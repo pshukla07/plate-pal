@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Camera, Upload, Sparkles, Loader2, RotateCcw, Flame, Check, CalendarDays } from "lucide-react";
+import { Camera, Upload, Sparkles, Loader2, RotateCcw, Flame, Check, CalendarDays, CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import heroBowl from "@/assets/hero-bowl.jpg";
@@ -47,6 +53,9 @@ const Index = () => {
   const [userLabel, setUserLabel] = useState<string | null>(null);
   const [logging, setLogging] = useState(false);
   const [logged, setLogged] = useState(false);
+  const [logOpen, setLogOpen] = useState(false);
+  const [logDate, setLogDate] = useState<Date>(new Date());
+  const [mealType, setMealType] = useState<"breakfast" | "lunch" | "dinner" | "snack">("breakfast");
 
   useEffect(() => {
     const apply = (session: { user: { id: string; email?: string | null; user_metadata?: Record<string, unknown> } } | null) => {
@@ -64,13 +73,23 @@ const Index = () => {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const logMeal = async () => {
+  const openLogDialog = () => {
     if (!result) return;
     if (!userId) {
       toast.error("Sign in to log meals");
       return;
     }
+    setLogDate(new Date());
+    setMealType("breakfast");
+    setLogOpen(true);
+  };
+
+  const confirmLogMeal = async () => {
+    if (!result || !userId) return;
     setLogging(true);
+    const yyyy = logDate.getFullYear();
+    const mm = String(logDate.getMonth() + 1).padStart(2, "0");
+    const dd = String(logDate.getDate()).padStart(2, "0");
     const { error } = await supabase.from("meal_logs").insert({
       user_id: userId,
       calories: result.total.calories,
@@ -78,11 +97,14 @@ const Index = () => {
       carbs: result.total.carbs,
       fat: result.total.fat,
       items: result.food,
+      meal_type: mealType,
+      logged_date: `${yyyy}-${mm}-${dd}`,
     });
     setLogging(false);
     if (error) return toast.error(error.message);
     setLogged(true);
-    toast.success("Logged to today");
+    setLogOpen(false);
+    toast.success(`Logged ${mealType} for ${format(logDate, "PP")}`);
     navigate("/today");
   };
 
@@ -282,7 +304,7 @@ const Index = () => {
 
                 {userId ? (
                   <Button
-                    onClick={logMeal}
+                    onClick={openLogDialog}
                     disabled={logging || logged}
                     size="lg"
                     className="w-full h-14 rounded-2xl gradient-hero text-primary-foreground shadow-glow font-medium"
@@ -339,6 +361,80 @@ const Index = () => {
           onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
         />
       </section>
+
+      <Dialog open={logOpen} onOpenChange={setLogOpen}>
+        <DialogContent className="rounded-3xl max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">Log this meal</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-5 pt-2">
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Meal</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {(["breakfast", "lunch", "dinner", "snack"] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMealType(m)}
+                    className={cn(
+                      "h-11 rounded-xl border text-sm font-medium capitalize transition-all",
+                      mealType === m
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-card hover:bg-secondary",
+                    )}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn("w-full h-11 rounded-xl justify-start text-left font-normal")}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {format(logDate, "PPP")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={logDate}
+                    onSelect={(d) => d && setLogDate(d)}
+                    disabled={(date) => date > new Date()}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2 pt-2">
+            <Button variant="secondary" onClick={() => setLogOpen(false)} className="rounded-xl">
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmLogMeal}
+              disabled={logging}
+              className="rounded-xl gradient-hero text-primary-foreground shadow-glow"
+            >
+              {logging ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Logging…</>
+              ) : (
+                <>Log meal</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </main>
   );
 };
