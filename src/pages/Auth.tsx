@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
@@ -58,10 +58,12 @@ const Auth = () => {
   return (
     <main className="min-h-screen flex flex-col">
       <header className="container max-w-md pt-8 pb-4 flex items-center gap-2">
-        <div className="w-9 h-9 rounded-2xl gradient-hero flex items-center justify-center shadow-glow">
-          <Sparkles className="w-5 h-5 text-primary-foreground" />
-        </div>
-        <span className="font-display text-xl font-semibold">WhatsInMyPlate</span>
+        <Link to="/" className="flex items-center gap-2">
+          <div className="w-9 h-9 rounded-2xl gradient-hero flex items-center justify-center shadow-glow">
+            <Sparkles className="w-5 h-5 text-primary-foreground" />
+          </div>
+          <span className="font-display text-xl font-semibold">WhatsInMyPlate</span>
+        </Link>
       </header>
 
       <section className="container max-w-md px-4 flex-1 flex flex-col justify-center pb-16">

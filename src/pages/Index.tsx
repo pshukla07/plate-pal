@@ -117,12 +117,12 @@ const Index = () => {
   return (
     <main className="min-h-screen">
       <header className="container max-w-2xl pt-8 pb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <div className="w-9 h-9 rounded-2xl gradient-hero flex items-center justify-center shadow-glow">
             <Sparkles className="w-5 h-5 text-primary-foreground" />
           </div>
           <span className="font-display text-xl font-semibold">WhatsInMyPlate</span>
-        </div>
+        </Link>
         {userId ? (
           <Link to="/today">
             <Button size="sm" variant="ghost" className="rounded-xl">
