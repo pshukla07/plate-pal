@@ -361,6 +361,80 @@ const Index = () => {
           onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
         />
       </section>
+
+      <Dialog open={logOpen} onOpenChange={setLogOpen}>
+        <DialogContent className="rounded-3xl max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">Log this meal</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-5 pt-2">
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Meal</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {(["breakfast", "lunch", "dinner", "snack"] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMealType(m)}
+                    className={cn(
+                      "h-11 rounded-xl border text-sm font-medium capitalize transition-all",
+                      mealType === m
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-card hover:bg-secondary",
+                    )}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn("w-full h-11 rounded-xl justify-start text-left font-normal")}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {format(logDate, "PPP")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={logDate}
+                    onSelect={(d) => d && setLogDate(d)}
+                    disabled={(date) => date > new Date()}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2 pt-2">
+            <Button variant="secondary" onClick={() => setLogOpen(false)} className="rounded-xl">
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmLogMeal}
+              disabled={logging}
+              className="rounded-xl gradient-hero text-primary-foreground shadow-glow"
+            >
+              {logging ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Logging…</>
+              ) : (
+                <>Log meal</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </main>
   );
 };
