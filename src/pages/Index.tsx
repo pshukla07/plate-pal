@@ -304,7 +304,7 @@ const Index = () => {
 
                 {userId ? (
                   <Button
-                    onClick={logMeal}
+                    onClick={openLogDialog}
                     disabled={logging || logged}
                     size="lg"
                     className="w-full h-14 rounded-2xl gradient-hero text-primary-foreground shadow-glow font-medium"
