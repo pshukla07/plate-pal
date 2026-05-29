@@ -1,5 +1,6 @@
-import { useRef, useState } from "react";
-import { Camera, Upload, Sparkles, Loader2, RotateCcw, Flame } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { Camera, Upload, Sparkles, Loader2, RotateCcw, Flame, Check, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
