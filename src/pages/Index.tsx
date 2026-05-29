@@ -42,6 +42,36 @@ const Index = () => {
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [logging, setLogging] = useState(false);
+  const [logged, setLogged] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user.id ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setUserId(s?.user.id ?? null));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const logMeal = async () => {
+    if (!result) return;
+    if (!userId) {
+      toast.error("Sign in to log meals");
+      return;
+    }
+    setLogging(true);
+    const { error } = await supabase.from("meal_logs").insert({
+      user_id: userId,
+      calories: result.total.calories,
+      protein: result.total.protein,
+      carbs: result.total.carbs,
+      fat: result.total.fat,
+      items: result.food,
+    });
+    setLogging(false);
+    if (error) return toast.error(error.message);
+    setLogged(true);
+    toast.success("Logged to today");
+  };
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith("image/")) {
