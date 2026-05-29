@@ -53,6 +53,9 @@ const Index = () => {
   const [userLabel, setUserLabel] = useState<string | null>(null);
   const [logging, setLogging] = useState(false);
   const [logged, setLogged] = useState(false);
+  const [logOpen, setLogOpen] = useState(false);
+  const [logDate, setLogDate] = useState<Date>(new Date());
+  const [mealType, setMealType] = useState<"breakfast" | "lunch" | "dinner" | "snack">("breakfast");
 
   useEffect(() => {
     const apply = (session: { user: { id: string; email?: string | null; user_metadata?: Record<string, unknown> } } | null) => {
