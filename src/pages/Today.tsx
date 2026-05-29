@@ -128,9 +128,6 @@ const Today = () => {
           <Button size="sm" variant="ghost" onClick={() => setEditingGoal((v) => !v)}>
             <Settings2 className="w-4 h-4 mr-1" /> Goals
           </Button>
-          <Button size="sm" variant="ghost" onClick={signOut}>
-            <LogOut className="w-4 h-4" />
-          </Button>
         </div>
       </header>
 
