@@ -137,7 +137,12 @@ const Index = () => {
           <span className="font-display text-xl font-semibold">WhatsInMyPlate</span>
         </Link>
         {userId ? (
-          <Link to="/today">
+          <Link to="/today" className="flex items-center gap-2">
+            {userLabel && (
+              <span className="hidden sm:inline text-xs text-muted-foreground max-w-[160px] truncate">
+                {userLabel}
+              </span>
+            )}
             <Button size="sm" variant="ghost" className="rounded-xl">
               <CalendarDays className="w-4 h-4 mr-1" /> Today
             </Button>
