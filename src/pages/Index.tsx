@@ -1,5 +1,6 @@
-import { useRef, useState } from "react";
-import { Camera, Upload, Sparkles, Loader2, RotateCcw, Flame } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { Camera, Upload, Sparkles, Loader2, RotateCcw, Flame, Check, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -41,6 +42,36 @@ const Index = () => {
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [logging, setLogging] = useState(false);
+  const [logged, setLogged] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user.id ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setUserId(s?.user.id ?? null));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const logMeal = async () => {
+    if (!result) return;
+    if (!userId) {
+      toast.error("Sign in to log meals");
+      return;
+    }
+    setLogging(true);
+    const { error } = await supabase.from("meal_logs").insert({
+      user_id: userId,
+      calories: result.total.calories,
+      protein: result.total.protein,
+      carbs: result.total.carbs,
+      fat: result.total.fat,
+      items: result.food,
+    });
+    setLogging(false);
+    if (error) return toast.error(error.message);
+    setLogged(true);
+    toast.success("Logged to today");
+  };
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -80,6 +111,7 @@ const Index = () => {
   const reset = () => {
     setPreview(null);
     setResult(null);
+    setLogged(false);
   };
 
   return (
@@ -91,7 +123,17 @@ const Index = () => {
           </div>
           <span className="font-display text-xl font-semibold">WhatsInMyPlate</span>
         </div>
-        <span className="text-xs text-muted-foreground hidden sm:inline">AI macro analysis</span>
+        {userId ? (
+          <Link to="/today">
+            <Button size="sm" variant="ghost" className="rounded-xl">
+              <CalendarDays className="w-4 h-4 mr-1" /> Today
+            </Button>
+          </Link>
+        ) : (
+          <Link to="/auth" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            Sign in
+          </Link>
+        )}
       </header>
 
       <section className="container max-w-2xl px-4 pb-16">
@@ -219,6 +261,29 @@ const Index = () => {
                 <p className="text-xs text-muted-foreground text-center">
                   Estimates only — values may vary based on preparation.
                 </p>
+
+                {userId ? (
+                  <Button
+                    onClick={logMeal}
+                    disabled={logging || logged}
+                    size="lg"
+                    className="w-full h-14 rounded-2xl gradient-hero text-primary-foreground shadow-glow font-medium"
+                  >
+                    {logged ? (
+                      <><Check className="w-4 h-4 mr-2" /> Logged to today</>
+                    ) : logging ? (
+                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Logging…</>
+                    ) : (
+                      <>Log this meal</>
+                    )}
+                  </Button>
+                ) : (
+                  <Link to="/auth" className="block">
+                    <Button size="lg" className="w-full h-14 rounded-2xl gradient-hero text-primary-foreground shadow-glow font-medium">
+                      Sign in to log this meal
+                    </Button>
+                  </Link>
+                )}
 
                 <Button
                   onClick={reset}
