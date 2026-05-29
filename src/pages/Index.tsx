@@ -73,13 +73,23 @@ const Index = () => {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const logMeal = async () => {
+  const openLogDialog = () => {
     if (!result) return;
     if (!userId) {
       toast.error("Sign in to log meals");
       return;
     }
+    setLogDate(new Date());
+    setMealType("breakfast");
+    setLogOpen(true);
+  };
+
+  const confirmLogMeal = async () => {
+    if (!result || !userId) return;
     setLogging(true);
+    const yyyy = logDate.getFullYear();
+    const mm = String(logDate.getMonth() + 1).padStart(2, "0");
+    const dd = String(logDate.getDate()).padStart(2, "0");
     const { error } = await supabase.from("meal_logs").insert({
       user_id: userId,
       calories: result.total.calories,
@@ -87,11 +97,14 @@ const Index = () => {
       carbs: result.total.carbs,
       fat: result.total.fat,
       items: result.food,
+      meal_type: mealType,
+      logged_date: `${yyyy}-${mm}-${dd}`,
     });
     setLogging(false);
     if (error) return toast.error(error.message);
     setLogged(true);
-    toast.success("Logged to today");
+    setLogOpen(false);
+    toast.success(`Logged ${mealType} for ${format(logDate, "PP")}`);
     navigate("/today");
   };
 
