@@ -262,6 +262,29 @@ const Index = () => {
                   Estimates only — values may vary based on preparation.
                 </p>
 
+                {userId ? (
+                  <Button
+                    onClick={logMeal}
+                    disabled={logging || logged}
+                    size="lg"
+                    className="w-full h-14 rounded-2xl gradient-hero text-primary-foreground shadow-glow font-medium"
+                  >
+                    {logged ? (
+                      <><Check className="w-4 h-4 mr-2" /> Logged to today</>
+                    ) : logging ? (
+                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Logging…</>
+                    ) : (
+                      <>Log this meal</>
+                    )}
+                  </Button>
+                ) : (
+                  <Link to="/auth" className="block">
+                    <Button size="lg" className="w-full h-14 rounded-2xl gradient-hero text-primary-foreground shadow-glow font-medium">
+                      Sign in to log this meal
+                    </Button>
+                  </Link>
+                )}
+
                 <Button
                   onClick={reset}
                   variant="secondary"
