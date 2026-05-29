@@ -111,6 +111,7 @@ const Index = () => {
   const reset = () => {
     setPreview(null);
     setResult(null);
+    setLogged(false);
   };
 
   return (
@@ -122,7 +123,17 @@ const Index = () => {
           </div>
           <span className="font-display text-xl font-semibold">WhatsInMyPlate</span>
         </div>
-        <span className="text-xs text-muted-foreground hidden sm:inline">AI macro analysis</span>
+        {userId ? (
+          <Link to="/today">
+            <Button size="sm" variant="ghost" className="rounded-xl">
+              <CalendarDays className="w-4 h-4 mr-1" /> Today
+            </Button>
+          </Link>
+        ) : (
+          <Link to="/auth" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            Sign in
+          </Link>
+        )}
       </header>
 
       <section className="container max-w-2xl px-4 pb-16">
