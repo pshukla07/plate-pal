@@ -110,10 +110,6 @@ const Today = () => {
     setLogs((prev) => prev.filter((l) => l.id !== id));
   };
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/auth", { replace: true });
-  };
 
   return (
     <main className="min-h-screen">
