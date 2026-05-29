@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Camera, Upload, Sparkles, Loader2, RotateCcw, Flame, Check, CalendarDays } from "lucide-react";
+import { Camera, Upload, Sparkles, Loader2, RotateCcw, Flame, Check, CalendarDays, CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import heroBowl from "@/assets/hero-bowl.jpg";
